@@ -1,10 +1,10 @@
 # gif-searcher
 
-> A Vue.js project
+> A Vue.js project using the Giphy.com API to search for gifs from a clean interface
 
 ## Build Setup
 
-``` bash
+```bash
 # install dependencies
 npm install
 
