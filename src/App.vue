@@ -78,6 +78,8 @@ html {
     width: 100%;
     object-fit: cover;
   }
+  max-width: 1280px;
+  margin: 0 auto;
 }
 
 h1,
