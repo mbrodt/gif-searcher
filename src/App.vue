@@ -4,11 +4,14 @@
 
     <img src="./assets/logo.png">
     <h1>{{ msg }}</h1>
-    <input type="text" class="search" v-model="searchInput" @keyup.enter="fetchGif(searchInput)">
-    <div >
-      <button class="search-btn" @click="fetchGif(searchInput)">Search!</button>
-      <button @click="fetchRandom()">Random</button>
+    <input type="text" class="search" v-model="searchInput" @keyup.enter="prepareUrl(false, searchInput)">
+    <div class="btn-container" >
+      <button class="search-btn" @click="prepareUrl(false, searchInput)">Search!</button>
+      <div>
+
+      <button @click="prepareUrl(true, '')">Random</button>
       <button @click="clear()">Clear</button>
+      </div>
       </div>
         <p v-if="isLoading">Loading... </p>
       <div class="gif-container">
@@ -37,42 +40,36 @@ export default {
   },
 
   methods: {
-    fetchGif: function(searchTerm) {
-      this.clear();
+    prepareUrl: function(random, searchTerm) {
       this.toggleLoading();
-      let limit = 9;
-      const url = `${this.searchUrl +
-        this.apiKey}&q=${searchTerm}&limit=${limit}`;
+      let url = "";
+      if (random) {
+        this.isRandom = true;
+        url = `${this.randomUrl + this.apiKey}`;
+      } else {
+        this.isRandom = false;
+        let limit = 9;
+        url = `${this.searchUrl + this.apiKey}&q=${searchTerm}&limit=${limit}`;
+      }
+      this.fetchGifs(url);
+      this.searchInput = "";
+    },
+    fetchGifs: function(url) {
       fetch(url)
         .then(response => {
           return response.json();
         })
         .then(json => {
-          this.isRandom = false;
           this.buildGif(json);
           this.toggleLoading();
         })
         .catch(function(err) {
           console.log("Fetch Error :-S", err);
         });
-      this.searchInput = "";
     },
-    fetchRandom: function() {
-      this.clear();
-      this.toggleLoading();
-      const url = `${this.randomUrl + this.apiKey}`;
-      fetch(url)
-        .then(response => {
-          return response.json();
-        })
-        .then(json => {
-          this.isRandom = true;
-          this.buildGif(json);
-          this.toggleLoading();
-        });
-    },
+
     buildGif: function(json) {
-      this.gifLinks = [];
+      this.clear();
       if (this.isRandom) {
         this.randomGif = `https://media.giphy.com/media/${
           json.data.id
@@ -112,12 +109,19 @@ html {
   margin-top: 60px;
 }
 
+.btn-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
 .gif-container {
   display: grid;
   grid-gap: 15px;
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
   .searched-img {
-    height: 300px;
+    height: 400px;
     width: 100%;
     object-fit: cover;
   }
@@ -162,6 +166,6 @@ a {
   width: 200px;
   height: 50px;
   margin-top: 2rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 </style>
