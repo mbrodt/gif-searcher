@@ -2,21 +2,31 @@
   <div id="app">
     <div class="container">
 
-    <img src="./assets/logo.png">
-    <h1>{{ msg }}</h1>
-    <input type="text" class="search" v-model="searchInput" @keyup.enter="prepareUrl(false, searchInput)">
-    <div class="btn-container" >
-      <button class="search-btn" @click="prepareUrl(false, searchInput)">Search!</button>
-      <div>
-
-      <button @click="prepareUrl(true, '')">Random</button>
-      <button @click="clear()">Clear</button>
+      <img src="./assets/giphy.gif">
+      <h1>{{ msg }}</h1>
+      <input type="text" class="search" v-model="searchInput" @keyup.enter="prepareUrl(false, searchInput)">
+      <div class="btn-container">
+        <button class="search-btn" @click="prepareUrl(false, searchInput)">Search!</button>
+        <div>
+          <label for="dropdown">Amount of gifs to display:</label>
+          <select id="dropdown" v-model.number="amountToShow" @change="changeAmount()">
+            <option value="3">3</option>
+            <option value="9" selected>9</option>
+            <option value="30">30</option>
+          </select>
+          <button @click="prepareUrl(true, '')">Random</button>
+          <button @click="clear()">Clear</button>
+        </div>
       </div>
+      <p v-if="isLoading">Loading... </p>
+      <div class="singlegif-mask" v-if="gifClicked" @click="closeGif()">
+        <div class="singlegif-wrapper">
+          <img class="singlegif-image" :src="gifClickedUrl" alt="">
+        </div>
       </div>
-        <p v-if="isLoading">Loading... </p>
       <div class="gif-container">
-        <img class="random-img" v-if="isRandom" :src="randomGif" alt="">
-        <img class="searched-img" v-for="gif in gifLinks" :src="gif" alt="" :key="gif">
+        <img class="random-img" v-if="isRandom" :src="randomGifUrl" @click="openGif(randomGifUrl)" alt="">
+        <img class="searched-img" v-for="gif in gifsToShow" :src="gif" alt="" :key="gif" @click="openGif(gif)">
       </div>
     </div>
   </div>
@@ -33,14 +43,18 @@ export default {
       randomUrl: "https://api.giphy.com/v1/gifs/random?",
       searchInput: "",
       gifLinks: [],
+      gifsToShow: [],
+      randomGifUrl: "",
+      gifClickedUrl: "",
+      gifClicked: false,
       isRandom: false,
-      randomGif: "",
-      isLoading: false
+      isLoading: false,
+      amountToShow: 9
     };
   },
 
   methods: {
-    prepareUrl: function(random, searchTerm) {
+    prepareUrl(random, searchTerm) {
       this.toggleLoading();
       let url = "";
       if (random) {
@@ -48,13 +62,13 @@ export default {
         url = `${this.randomUrl + this.apiKey}`;
       } else {
         this.isRandom = false;
-        let limit = 9;
+        let limit = 30;
         url = `${this.searchUrl + this.apiKey}&q=${searchTerm}&limit=${limit}`;
       }
       this.fetchGifs(url);
       this.searchInput = "";
     },
-    fetchGifs: function(url) {
+    fetchGifs(url) {
       fetch(url)
         .then(response => {
           return response.json();
@@ -68,25 +82,51 @@ export default {
         });
     },
 
-    buildGif: function(json) {
+    buildGif(json) {
       this.clear();
       if (this.isRandom) {
-        this.randomGif = `https://media.giphy.com/media/${
+        this.randomGifUrl = `https://media.giphy.com/media/${
           json.data.id
         }/giphy.gif`;
       } else {
         this.gifLinks = json.data
           .map(gif => gif.id)
           .map(gifId => `https://media.giphy.com/media/${gifId}/giphy.gif`);
+        this.changeAmount();
       }
     },
-    toggleLoading: function() {
+    toggleLoading() {
       this.isLoading = !this.isLoading;
     },
-    clear: function() {
+    clear() {
       this.gifLinks = [];
-      this.randomGif = "";
+      this.gifsToShow = [];
+      this.randomGifUrl = "";
+    },
+    changeAmount() {
+      this.gifsToShow = [];
+      for (let i = 0; i < this.amountToShow; i++) {
+        const element = this.gifLinks[i]; //could easily be randomized to show different orders
+        this.gifsToShow.push(element);
+      }
+    },
+    openGif(gif) {
+      this.gifClickedUrl = gif;
+      this.gifClicked = true;
+      document.body.style.overflowY = "hidden";
+    },
+    closeGif() {
+      this.gifClickedUrl = null;
+      this.gifClicked = false;
+      document.body.style.overflowY = "auto";
     }
+  },
+  mounted() {
+    document.addEventListener("keydown", e => {
+      if (this.gifClicked && e.keyCode == 27) {
+        this.closeGif();
+      }
+    });
   }
 };
 </script>
@@ -167,5 +207,26 @@ a {
   height: 50px;
   margin-top: 2rem;
   margin-bottom: 1rem;
+}
+
+.singlegif-mask {
+  position: fixed;
+  z-index: 9998;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: table;
+  transition: opacity 0.3s ease;
+}
+
+.singlegif-wrapper {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.singlegif-image {
+  min-width: 800px;
 }
 </style>
