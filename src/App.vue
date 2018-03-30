@@ -59,8 +59,10 @@ export default {
       let url = "";
       if (random) {
         this.isRandom = true;
+        this.amountToShow = 1;
         url = `${this.randomUrl + this.apiKey}`;
       } else {
+        this.amountToShow = 9;
         this.isRandom = false;
         let limit = 30;
         url = `${this.searchUrl + this.apiKey}&q=${searchTerm}&limit=${limit}`;
@@ -105,6 +107,10 @@ export default {
     },
     changeAmount() {
       this.gifsToShow = [];
+      if (this.isRandom) {
+        this.amountToShow = 1;
+        return;
+      }
       for (let i = 0; i < this.amountToShow; i++) {
         const element = this.gifLinks[i]; //could easily be randomized to show different orders
         this.gifsToShow.push(element);
