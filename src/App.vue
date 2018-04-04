@@ -1,31 +1,33 @@
 <template>
-  <div id="app">
+  <div id="app" class="font-sans text-center antialiased text-blue-darkest mt-8">
     <div class="container">
 
       <img src="./assets/giphy.gif">
-      <h1>{{ msg }}</h1>
-      <input type="text" class="search" v-model="searchInput" @keyup.enter="prepareUrl(false, searchInput)">
-      <div class="btn-container">
-        <button class="search-btn" @click="prepareUrl(false, searchInput)">Search!</button>
+      <h1 class="font-semibold my-6">{{ msg }}</h1>
+      <input type="text" class="pl-4 text-4xl h-12 border border-grey" v-model="searchInput" @keyup.enter="prepareUrl(false, searchInput)">
+      <p v-if="error">Please search for something...</p>
+      <div class="mb-8">
+        <button class="bg-green text-white font-bold py-2 px-4 my-8 rounded w-32 hover:bg-green-dark shadow-md" @click="prepareUrl(false, searchInput)">Search!</button>
         <div>
           <label for="dropdown">Amount of gifs to display:</label>
-          <select id="dropdown" v-model.number="amountToShow" @change="changeAmount()">
+          <select class="border border-grey-dark"  id="dropdown" v-model.number="amountToShow" @change="changeAmount()">
             <option value="3">3</option>
             <option value="9" selected>9</option>
             <option value="30">30</option>
           </select>
-          <button @click="prepareUrl(true, '')">Random</button>
-          <button @click="clear()">Clear</button>
+          <button class="bg-blue text-white font-bold py-2 px-4 rounded" @click="prepareUrl(true, '')">Random</button>
+          <button class="bg-red text-white font-bold py-2 px-4 rounded" @click="clear()">Clear</button>
         </div>
       </div>
       <p v-if="isLoading">Loading... </p>
-      <div class="singlegif-mask" v-if="gifClicked" @click="closeGif()">
-        <div class="singlegif-wrapper">
+      <div class="fixed z-50 pin-t pin-l w-full h-full  table singlegif-mask" v-if="gifClicked" @click="closeGif()">
+      <!-- <div class="singlegif-mask" v-if="gifClicked" @click="closeGif()"> -->
+        <div class="table-cell align-middle ">
           <img class="singlegif-image" :src="gifClickedUrl" alt="">
         </div>
       </div>
       <div class="gif-container">
-        <img class="random-img" v-if="isRandom" :src="randomGifUrl" @click="openGif(randomGifUrl)" alt="">
+        <img class="mx-auto my-0" v-if="isRandom" :src="randomGifUrl" @click="openGif(randomGifUrl)" alt="">
         <img class="searched-img" v-for="gif in gifsToShow" :src="gif" alt="" :key="gif" @click="openGif(gif)">
       </div>
     </div>
@@ -46,6 +48,7 @@ export default {
       gifsToShow: [],
       randomGifUrl: "",
       gifClickedUrl: "",
+      error: false,
       gifClicked: false,
       isRandom: false,
       isLoading: false,
@@ -55,6 +58,10 @@ export default {
 
   methods: {
     prepareUrl(random, searchTerm) {
+      if (searchTerm === "" && !random) {
+        this.error = true;
+        return;
+      }
       this.toggleLoading();
       let url = "";
       if (random) {
@@ -69,6 +76,7 @@ export default {
       }
       this.fetchGifs(url);
       this.searchInput = "";
+      this.error = false;
     },
     fetchGifs(url) {
       fetch(url)
@@ -138,7 +146,34 @@ export default {
 </script>
 
 <style lang="scss">
+.gif-container {
+  display: grid;
+  grid-gap: 15px;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  .searched-img {
+    height: 400px;
+    width: 100%;
+    object-fit: cover;
+  }
+  max-width: 1280px;
+  margin: 0 auto;
+}
+.singlegif-mask {
+  // position: fixed;
+  // z-index: 9998;
+  // top: 0;
+  // left: 0;
+  // width: 100%;
+  // height: 100%;
+  // background-color: rgba(0, 0, 0, 0.8);
+  // display: table;
+  background-color: rgba(0, 0, 0, 0.8);
+  // transition: opacity 0.3s ease;
+}
 
+.singlegif-image {
+  min-width: 800px;
+}
 </style>
 
 
