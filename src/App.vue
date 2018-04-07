@@ -4,7 +4,7 @@
 
       <img src="./assets/giphy.gif">
       <h1 class="font-semibold my-6">{{ msg }}</h1>
-      <input type="text" class="pl-4 text-4xl h-12 border border-grey" v-model="searchInput" @keyup.enter="prepareUrl(false, searchInput)">
+      <input type="text" class="pl-4 text-2xl h-12 border border-grey" v-model="searchInput" @keyup.enter="prepareUrl(false, searchInput)">
       <p v-if="error">Please search for something...</p>
       <div class="mb-8">
         <button class="bg-green text-white font-bold py-2 px-4 my-8 rounded w-32 hover:bg-green-dark shadow-md" @click="prepareUrl(false, searchInput)">Search!</button>
@@ -177,7 +177,7 @@ export default {
 }
 
 .singlegif-image {
-  min-width: 800px;
+  max-width: 90vw;
 }
 </style>
 
