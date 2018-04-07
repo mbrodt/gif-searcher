@@ -159,7 +159,7 @@ export default {
 .gif-container {
   display: grid;
   grid-gap: 15px;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   .searched-img {
     height: 400px;
     width: 100%;
