@@ -1,6 +1,6 @@
 <template>
   <div id="app" class="font-sans text-center antialiased text-blue-darkest mt-8">
-    <div class="container">
+    <div class="container mb-8">
 
       <img src="./assets/giphy.gif">
       <h1 class="font-semibold my-6">{{ msg }}</h1>
@@ -8,15 +8,19 @@
       <p v-if="error">Please search for something...</p>
       <div class="mb-8">
         <button class="bg-green text-white font-bold py-2 px-4 my-8 rounded w-32 hover:bg-green-dark shadow-md" @click="prepareUrl(false, searchInput)">Search!</button>
-        <div>
+        <div class="container">
           <label for="dropdown">Amount of gifs to display:</label>
           <select class="border border-grey-dark"  id="dropdown" v-model.number="amountToShow" @change="changeAmount()">
+                      <option v-for="option in options" :key="option.id">
+              {{ option }}
+            </option>
+            <!-- <option value="1">1</option>
             <option value="3">3</option>
             <option value="9" selected>9</option>
-            <option value="30">30</option>
+            <option value="30">30</option> -->
           </select>
-          <button class="bg-blue text-white font-bold py-2 px-4 rounded" @click="prepareUrl(true, '')">Random</button>
-          <button class="bg-red text-white font-bold py-2 px-4 rounded" @click="clear()">Clear</button>
+          <button class="text-blue font-bold py-2 px-2 rounded" @click="prepareUrl(true, '')">Random</button>
+          <button class="text-grey-dark font-bold py-2 px-2 rounded" @click="clear()">Clear</button>
         </div>
       </div>
       <p v-if="isLoading">Loading... </p>
@@ -52,7 +56,8 @@ export default {
       gifClicked: false,
       isRandom: false,
       isLoading: false,
-      amountToShow: 9
+      amountToShow: 9,
+      options: ["1", "3", "9", "30"]
     };
   },
 
@@ -69,7 +74,7 @@ export default {
         this.amountToShow = 1;
         url = `${this.randomUrl + this.apiKey}`;
       } else {
-        this.amountToShow = 9;
+        // this.amountToShow = 9;
         this.isRandom = false;
         let limit = 30;
         url = `${this.searchUrl + this.apiKey}&q=${searchTerm}&limit=${limit}`;
